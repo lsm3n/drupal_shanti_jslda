@@ -1,0 +1,4 @@
+name = SHANTI jsLDA
+description = An adaptation of David Mimno's jsLDA module in Drupal
+package = SHANTI
+core = 7.x
