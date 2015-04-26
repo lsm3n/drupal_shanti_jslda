@@ -6,7 +6,7 @@ Drupal.behaviors.shantiJsLDA = {
 			
 		documentsURL 	= settings.shantiJsLDA.corpus;
 		stopwordsURL 	= settings.shantiJsLDA.stopwords;
-		numTopics 		= settings.shantiJsLDA.topicsn;
+		numTopics 		= settings.shantiJsLDA.topicn;
 		
 		if (isNaN(numTopics)) {
 			alert("The requested number of topics [" + numTopics + "] couldn't be interpreted as a number");
@@ -19,29 +19,33 @@ Drupal.behaviors.shantiJsLDA = {
 			return x;
 		};
 
-		var documentTopicSmoothing = 0.1;
-		var topicWordSmoothing = 0.01;
-		var vocabularySize = 0;
-		var vocabularyCounts = {};
-		// Constants for calculating topic correlation. A doc with 5% or more tokens in a topic is "about" that topic.
-		var correlationMinTokens = 2;
-		var correlationMinProportion = 0.05;
-		var stopwords = {};
-		var docSortSmoothing = 10.0;
-		var completeSweeps = 0;
-		var requestedSweeps = 0;
-		var selectedTopic = -1;
-		var wordTopicCounts = {};
-		var topicWordCounts = [];
-		var tokensPerTopic = [];
-		var topicWeights = [];
-		var documents = [];
+		var documentTopicSmoothing 		= 0.1;
+		var topicWordSmoothing 				= 0.01;
+		var vocabularySize 						= 0;
+		var vocabularyCounts 					= {};
+
+		// Constants for calculating topic correlation. 
+		// A doc with 5% or more tokens in a topic is "about" that topic.
+		var correlationMinTokens 			= 2;
+		var correlationMinProportion	= 0.05;
+		var stopwords 								= {};
+		var docSortSmoothing 					= 10.0;
+		var completeSweeps 						= 0;
+		var requestedSweeps 					= 0;
+		var selectedTopic 						= -1;
+		var wordTopicCounts 					= {};
+		var topicWordCounts 					= [];
+		var tokensPerTopic 						= [];
+		var topicWeights 							= [];
+		var documents 								= [];
 
 		var sumDocSortSmoothing = docSortSmoothing * numTopics;		
+
 		tokensPerTopic.length = numTopics;
 		for (var topic = 0; topic < numTopics; topic++) {
 			tokensPerTopic[topic] = 0;
 		}
+
 		topicWeights.length = numTopics;
 		
 		/* SVG functions */
@@ -354,11 +358,12 @@ Drupal.behaviors.shantiJsLDA = {
 			var format = d3.format(".2g");
 			var rows = d3.select("#vocab-table tbody").selectAll("tr");
 			rows.selectAll("td")
-					 .data(function(row) { return [ { column: "word", value: row.word, class: "" }, { column: "count", value: row.count, class: "unselectable" }, { column: "entropy", value: format(1.0 - (entropy(d3.values(wordTopicCounts[row.word])) / Math.log(numTopics))), class: "unselectable" } ]; })
-				 .text(function (d) { return d.value; });
-		 
+				.data(function(row) { return [ { column: "word", value: row.word, class: "" }, { column: "count", value: row.count, class: "unselectable" }, { column: "entropy", value: format(1.0 - (entropy(d3.values(wordTopicCounts[row.word])) / Math.log(numTopics))), class: "unselectable" } ]; })
+				.text(function (d) { return d.value; });
 		}
+		
 		/* Declare functions for various tabs and buttons */
+		
 		d3.select("#docs-tab").on("click", function() {
 			d3.selectAll(".page").style("display", "none");
 			d3.selectAll("ul li").attr("class", "");
@@ -387,17 +392,18 @@ Drupal.behaviors.shantiJsLDA = {
 			requestedSweeps += 50;
 			d3.timer(sweep);
 		});
+		
 		/* Functions for download links */
+		
 		function saveDocTopics() {
 			var docTopicsCSV = "";
 				var topicProbabilities = zeros(numTopics);
-	
 				documents.forEach(function(d, i) {
 				docTopicsCSV += d.id + "," + d.topicCounts.map(function (x) { return d3.round(x / d.tokens.length, 8); }).join(",") + "\n";
 			});	
-	
 			d3.select("#doctopics-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(docTopicsCSV));
 		}
+		
 		function saveTopicWords() {
 			var topicWordsCSV = "word," + d3.range(0, numTopics).map(function(t) {return "topic" + t; } ).join(",") + "\n";
 				for (var word in wordTopicCounts) {
@@ -405,32 +411,30 @@ Drupal.behaviors.shantiJsLDA = {
 					for (var topic in wordTopicCounts[word]) {
 						topicProbabilities[topic] = d3.round(wordTopicCounts[word][topic] / tokensPerTopic[topic], 8);
 					}
-				topicWordsCSV += word + "," + topicProbabilities.join(",") + "\n";
+					topicWordsCSV += word + "," + topicProbabilities.join(",") + "\n";
 				}
 			d3.select("#topicwords-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(topicWordsCSV));
 		}
+		
 		function saveTopicKeys() {
 			var keysCSV = "Topic,TokenCount,Words\n";
- 
 			if (topicWordCounts.length == 0) { sortTopicWords(); }
-				for (var topic = 0; topic < numTopics; topic++) {
+			for (var topic = 0; topic < numTopics; topic++) {
 				keysCSV += topic + "," + tokensPerTopic[topic] + ",\"" + topNWords(topicWordCounts[topic], 10) + "\"\n";
-				}
-	
+			}
 			d3.select("#keys-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(keysCSV));
 		}
+		
 		function saveTopicPMI() {
 			var pmiCSV = "";
-			var matrix = getTopicCorrelations();
-	
-				matrix.forEach(function(row) { pmiCSV += row.map(function (x) { return d3.round(x, 8); }).join(",") + "\n"; });	
-	
+			var matrix = getTopicCorrelations();	
+			matrix.forEach(function(row) { pmiCSV += row.map(function (x) { return d3.round(x, 8); }).join(",") + "\n"; });	
 			d3.select("#topictopic-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(pmiCSV));
 		}
+		
 		function saveGraph() {
 			var graphCSV = "Source,Target,Weight,Type\n";
-				var topicProbabilities = zeros(numTopics);
-	
+				var topicProbabilities = zeros(numTopics);	
 				documents.forEach(function(d, i) {
 				d.topicCounts.forEach(function(x, topic) {
 					if (x > 0.0) {
@@ -438,9 +442,9 @@ Drupal.behaviors.shantiJsLDA = {
 					}
 				});
 			});	
-	
 			d3.select("#graph-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(graphCSV));
 		}
+		
 		function saveState() {
 			var state = "DocID,Word,Topic";
 			documents.forEach(function(d, docID) {
@@ -448,9 +452,9 @@ Drupal.behaviors.shantiJsLDA = {
 					state += docID + ",\"" + token.word + "\"," + token.topic + "\n";
 				});
 			});
-		
 			d3.select("#state-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(state));
 		}
+		
 		queue()
 			.defer(d3.text, stopwordsURL)
 			.defer(d3.text, documentsURL)
@@ -464,9 +468,9 @@ Drupal.behaviors.shantiJsLDA = {
 				lines.split("\n").forEach(parseLine);
 				sortTopicWords();
 				displayTopicWords();
-			toggleTopicDocuments(0);
-			 //plotGraph();
-			plotMatrix();
+				toggleTopicDocuments(0);
+			 	//plotGraph();
+				plotMatrix();
 				vocabTable();
 			}
 		}

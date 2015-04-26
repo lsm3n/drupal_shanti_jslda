@@ -19,10 +19,11 @@ function shanti_jslda_default($corpus_file_id, $stopwords_file_id, $topicn = 25)
 	$stopws = file_load($stopwords_file_id);
 	$corpus_url = file_create_url($corpus->uri);
 	$stopws_url = file_create_url($stopws->uri);
+	
 	$js_settings = array(
-		'corpus' => $corpus_url,
+		'corpus' 		=> $corpus_url,
 		'stopwords'	=> $stopws_url,
-		'topicsn' => $topicn
+		'topicn' 		=> $topicn
 	);
 	$build = array(
 		'jslda_page' => array(
@@ -81,38 +82,48 @@ function shanti_jslda_default($corpus_file_id, $stopwords_file_id, $topicn = 25)
 							'docs_page_help' => array(
 								'#type' => 'container',
 								'#attributes' => array('class' => array('help')),
-								'#markup' => "Documents are sorted by their proportion of the currently selected topic, biased to prefer longer documents.",
+								'content' => array(
+									'#markup' => "Documents are sorted by their proportion of the currently selected topic, biased to prefer longer documents.",
+								),
 							),
 						),
 						'vocab_page' => array(
 							'#type' => 'container',
 							'#attributes' => array('id' => 'vocab-page', 'class' => array('page')),						
-							'vocab_page_help' => array(
+							'help' => array(
 								'#type' => 'container',
 								'#attributes' => array('class' => array('help')),
-								'#markup' => "Words occurring in only one topic have specificity 1.0, words evenly distributed among all topics have specificity 0.0.",
+								'content' => array(
+									'#markup' => "Words occurring in only one topic have specificity 1.0, words evenly distributed among all topics have specificity 0.0.",
+								),
 							),
-							'#markup' => '<table id="vocab-table">'
+							'table' => array(
+								'#markup' => '<table id="vocab-table">'
 														.'<thead><th>Word</th><th>Frequency</th><th>Topic Specificity</th></thead>'
 														.'<tbody></tbody>'
 														.'</table>',
+							),
 						),
 						'corr_page' => array(
 							'#type' => 'container',
 							'#attributes' => array('id' => 'corr-page', 'class' => array('page')),						
-							'corr_page_help' => array(
+							'help' => array(
 								'#type' => 'container',
 								'#attributes' => array('class' => array('help')),
-								'#markup' => "Topics that occur together more than expected are blue, topics that occur together less than expected are red.",
+								'content' => array(
+									'#markup' => "Topics that occur together more than expected are blue, topics that occur together less than expected are red.",
+								),
 							),
 						),
 						'dl_page' => array(
 							'#type' => 'container',
 							'#attributes' => array('id' => 'dl-page', 'class' => array('page')),						
-							'dl_page_help' => array(
+							'help' => array(
 								'#type' => 'container',
 								'#attributes' => array('class' => array('help')),
-								'#markup' => "Each file is in comma-separated format.",
+								'content' => array(
+									'#markup' => "Each file is in comma-separated format.",
+								),
 							),
 							'dl_list' => array(
 								'#theme' => 'item_list',
@@ -147,4 +158,17 @@ function shanti_jslda_default($corpus_file_id, $stopwords_file_id, $topicn = 25)
 	);
 	
 	return drupal_render($build);
+}
+
+function shanti_jslda_theme(existing, $type, $theme, $path) {
+	return array(
+		'default_page' => array(
+			'variables' => array($corpus = NULL, $stopwords = NULL, $topicn = 25),
+			'template' => 'shanti-jslda-default-page',
+		),
+	);
+}
+
+function shanti_jslda_default_page($vars) {
+	// Return rendered build
 }

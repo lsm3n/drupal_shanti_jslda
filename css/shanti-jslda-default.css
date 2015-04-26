@@ -24,3 +24,8 @@ table { margin-left: 50px; border-collapse: collapse; text-align: left; }
 table th { font-weight: normal; padding: 10px 8px; border-bottom: 2px solid black; }
 table td { text-align: right; padding: 9px 8px 0px 8px; }
 #tooltip { border: solid #ddd 2px; margin:0 2px 0 0; padding:7px 10px; color:#333; border-radius: 4px; background: #FFFFFF; position: absolute; z-index: 10; visibility: hidden; }
+
+#tabwrapper .page .help {
+	font-weight:bold;
+	font-size:110%;	
+}	
