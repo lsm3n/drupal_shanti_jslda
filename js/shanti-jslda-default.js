@@ -1,12 +1,12 @@
 (function($){
 
-Drupal.behaviors.shantiJsLDA = {
+Drupal.behaviors.shanti_jslda_default = {
 
 	attach: function (context, settings) {
 			
-		documentsURL 	= settings.shantiJsLDA.corpus;
-		stopwordsURL 	= settings.shantiJsLDA.stopwords;
-		numTopics 		= settings.shantiJsLDA.topicn;
+		documentsURL 	= settings.shanti_jslda.corpus_url;
+		stopwordsURL 	= settings.shanti_jslda.stopwords_url;
+		numTopics 		= settings.shanti_jslda.topicn;
 		
 		if (isNaN(numTopics)) {
 			alert("The requested number of topics [" + numTopics + "] couldn't be interpreted as a number");
@@ -147,7 +147,6 @@ Drupal.behaviors.shantiJsLDA = {
 				reorderDocuments(); 
 				sortTopicWords();
 				displayTopicWords();
-				//plotGraph();
 				plotMatrix();
 				updateVocabTable();
 				return true;
@@ -393,49 +392,52 @@ Drupal.behaviors.shantiJsLDA = {
 			d3.timer(sweep);
 		});
 		
-		/* Functions for download links */
+
+		/* Handlers for download links */
 		
-		function saveDocTopics() {
+		$('#doctopics-dl').on('click', function() {
 			var docTopicsCSV = "";
-				var topicProbabilities = zeros(numTopics);
-				documents.forEach(function(d, i) {
-				docTopicsCSV += d.id + "," + d.topicCounts.map(function (x) { return d3.round(x / d.tokens.length, 8); }).join(",") + "\n";
-			});	
+			var topicProbabilities = zeros(numTopics);
+			documents.forEach(function(d, i) {
+				docTopicsCSV += d.id + "," + d.topicCounts.map(function (x) { 
+					return d3.round(x / d.tokens.length, 8); 
+				}).join(",") + "\n";
+			});
 			d3.select("#doctopics-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(docTopicsCSV));
-		}
+		});
 		
-		function saveTopicWords() {
+		$('#topicwords-dl').on('click',function() {
 			var topicWordsCSV = "word," + d3.range(0, numTopics).map(function(t) {return "topic" + t; } ).join(",") + "\n";
-				for (var word in wordTopicCounts) {
-					var topicProbabilities = zeros(numTopics);
-					for (var topic in wordTopicCounts[word]) {
-						topicProbabilities[topic] = d3.round(wordTopicCounts[word][topic] / tokensPerTopic[topic], 8);
-					}
-					topicWordsCSV += word + "," + topicProbabilities.join(",") + "\n";
+			for (var word in wordTopicCounts) {
+				var topicProbabilities = zeros(numTopics);
+				for (var topic in wordTopicCounts[word]) {
+					topicProbabilities[topic] = d3.round(wordTopicCounts[word][topic] / tokensPerTopic[topic], 8);
 				}
+				topicWordsCSV += word + "," + topicProbabilities.join(",") + "\n";
+			}
 			d3.select("#topicwords-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(topicWordsCSV));
-		}
+		});
 		
-		function saveTopicKeys() {
+		$('#keys-dl').on('click',function() {
 			var keysCSV = "Topic,TokenCount,Words\n";
 			if (topicWordCounts.length == 0) { sortTopicWords(); }
 			for (var topic = 0; topic < numTopics; topic++) {
 				keysCSV += topic + "," + tokensPerTopic[topic] + ",\"" + topNWords(topicWordCounts[topic], 10) + "\"\n";
 			}
 			d3.select("#keys-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(keysCSV));
-		}
+		});
 		
-		function saveTopicPMI() {
+		$('#topictopic-dl').on('click',function() {
 			var pmiCSV = "";
 			var matrix = getTopicCorrelations();	
 			matrix.forEach(function(row) { pmiCSV += row.map(function (x) { return d3.round(x, 8); }).join(",") + "\n"; });	
 			d3.select("#topictopic-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(pmiCSV));
-		}
+		});
 		
-		function saveGraph() {
+		$("#graph-dl").on('click',function() {
 			var graphCSV = "Source,Target,Weight,Type\n";
-				var topicProbabilities = zeros(numTopics);	
-				documents.forEach(function(d, i) {
+			var topicProbabilities = zeros(numTopics);	
+			documents.forEach(function(d, i) {
 				d.topicCounts.forEach(function(x, topic) {
 					if (x > 0.0) {
 						graphCSV += d.id + "," + topic + "," + d3.round(x / d.tokens.length, 8) + ",undirected\n";
@@ -443,9 +445,9 @@ Drupal.behaviors.shantiJsLDA = {
 				});
 			});	
 			d3.select("#graph-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(graphCSV));
-		}
+		});
 		
-		function saveState() {
+		$("#state-dl").on('click',function() {
 			var state = "DocID,Word,Topic";
 			documents.forEach(function(d, docID) {
 				d.tokens.forEach(function(token, position) {
@@ -453,14 +455,16 @@ Drupal.behaviors.shantiJsLDA = {
 				});
 			});
 			d3.select("#state-dl").attr("href", "data:Content-type:text/csv;charset=UTF-8," + encodeURIComponent(state));
-		}
+		});
 		
 		queue()
 			.defer(d3.text, stopwordsURL)
 			.defer(d3.text, documentsURL)
 			.await(ready);
 		function ready(error, stops, lines) {
-			if (error) { alert("One of these URLs didn't work:\n " + stopwordsURL + "\n " + documentsURL); }
+			if (error) { 
+				alert("One of these URLs didn't work:\n " + stopwordsURL + "\n " + documentsURL); 
+			}
 			else {
 				// Create the stoplist
 				stops.split("\n").forEach(function (w) { stopwords[w] = 1; });
@@ -469,7 +473,6 @@ Drupal.behaviors.shantiJsLDA = {
 				sortTopicWords();
 				displayTopicWords();
 				toggleTopicDocuments(0);
-			 	//plotGraph();
 				plotMatrix();
 				vocabTable();
 			}

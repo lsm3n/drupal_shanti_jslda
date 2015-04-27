@@ -4,10 +4,10 @@ define('SHANTI_JSLDA_PATH', drupal_get_path('module','shanti_jslda'));
 
 function shanti_jslda_menu() {
 	return array(
-    'shanti_jslda/%/%/%' => array(
+    'shanti_jslda/default/%/%/%' => array(
     	'title' => t('Default jsLDA Page'),
       'page callback' => 'shanti_jslda_default',
-			'page arguments' => array(1,2,3),
+			'page arguments' => array(2,3,4),
       'type' => MENU_CALLBACK,
       'access arguments' => array('access content'),
     ),	
@@ -19,156 +19,22 @@ function shanti_jslda_default($corpus_file_id, $stopwords_file_id, $topicn = 25)
 	$stopws = file_load($stopwords_file_id);
 	$corpus_url = file_create_url($corpus->uri);
 	$stopws_url = file_create_url($stopws->uri);
-	
-	$js_settings = array(
-		'corpus' 		=> $corpus_url,
-		'stopwords'	=> $stopws_url,
-		'topicn' 		=> $topicn
-	);
-	$build = array(
-		'jslda_page' => array(
-			'#type' => 'container',
-			'tooltip' => array(
-				'#type' => 'container',
-				'#attributes' => array('id' => 'tooltip'),
-			),
-			'main' => array(
-				'#type' => 'container',
-				'#attributes' => array('id' => 'main'),
-				'form_a' => array(
-					'#type' => 'container',
-					'#attributes' => array('id' => 'form', 'class' => array('top')),
-					'iterations' => array(
-						'#markup' => '<button id="sweep">Run 50 iterations</button>'.
-  											'Iterations: <span id="iters">0</span>',			
-					),
-					'data_sources' => array(
-						'#markup' => "<form><span><a href='$corpus_url' target='_blank'>CORPUS</a></span> | "
-												."<span><a href='$stopws_url' target='_blank'>STOPS</a></span></form>",
-					),
-				),
-					
-				'sidebar' => array(
-					'#type' => 'container',
-					'#attributes' => array('class' => array('sidebar')),
-					'sidebox' => array(
-						'#type' => 'container',
-						'#attributes' => array('id'=> 'topics', 'class' => array('sidebox')),
-					),									
-				),
-				'tabwrapper' => array(
-					'#type' => 'container',
-					'#attributes' => array('id' => 'tabwrapper'),
-					'tabs' => array(
-						'#type' => 'container',
-						'#attributes' => array('class' => array('tabs')),
-						'tablist' => array(
-							'#type' => 'ul',  
-							'#theme' => 'item_list',
-							'#items' => array(
-								array('id' => 'docs-tab', 'class' => array('selected'), 'data' => 'Topic Documents'),
-								array('id' => 'corr-tab', 'data' => 'Topic Correlations'),
-								array('id' => 'dl-tab', 'data' => 'Downloads'),
-								array('id' => 'vocab-tab', 'data' => 'Vocabulary'),
-							),
-						),
-					),
-					'pages' => array(
-						'#type' => 'container',
-						'#attributes' => array('id' => 'pages'),
-						'docs_page' => array(
-							'#type' => 'container',
-							'#attributes' => array('id' => 'docs-page', 'class' => array('page')),
-							'docs_page_help' => array(
-								'#type' => 'container',
-								'#attributes' => array('class' => array('help')),
-								'content' => array(
-									'#markup' => "Documents are sorted by their proportion of the currently selected topic, biased to prefer longer documents.",
-								),
-							),
-						),
-						'vocab_page' => array(
-							'#type' => 'container',
-							'#attributes' => array('id' => 'vocab-page', 'class' => array('page')),						
-							'help' => array(
-								'#type' => 'container',
-								'#attributes' => array('class' => array('help')),
-								'content' => array(
-									'#markup' => "Words occurring in only one topic have specificity 1.0, words evenly distributed among all topics have specificity 0.0.",
-								),
-							),
-							'table' => array(
-								'#markup' => '<table id="vocab-table">'
-														.'<thead><th>Word</th><th>Frequency</th><th>Topic Specificity</th></thead>'
-														.'<tbody></tbody>'
-														.'</table>',
-							),
-						),
-						'corr_page' => array(
-							'#type' => 'container',
-							'#attributes' => array('id' => 'corr-page', 'class' => array('page')),						
-							'help' => array(
-								'#type' => 'container',
-								'#attributes' => array('class' => array('help')),
-								'content' => array(
-									'#markup' => "Topics that occur together more than expected are blue, topics that occur together less than expected are red.",
-								),
-							),
-						),
-						'dl_page' => array(
-							'#type' => 'container',
-							'#attributes' => array('id' => 'dl-page', 'class' => array('page')),						
-							'help' => array(
-								'#type' => 'container',
-								'#attributes' => array('class' => array('help')),
-								'content' => array(
-									'#markup' => "Each file is in comma-separated format.",
-								),
-							),
-							'dl_list' => array(
-								'#theme' => 'item_list',
-								'#type' => 'ul',
-								'#items' => array(
-									array('id' => 'doctopics-dl', 'data' => l('Document topics','javascript:;',array('attributes' => array('download' => 'doctopics.csv', 'onclick' => 'saveDocTopics()')))),
-									array('id' => 'topicwords-dl', 'data' => l('Topic words','javascript:;',array('attributes' => array('download' => 'topicwords.csv', 'onclick' => 'saveTopicWords()')))),
-									array('id' => 'keys-dl', 'data' => l('Topic summaries','javascript:;',array('attributes' => array('download' => 'keys.csv', 'onclick' => 'saveTopicKeys()')))),
-									array('id' => 'topictopic-dl', 'data' => l('Topic-topic connections','javascript:;',array('attributes' => array('download' => 'topictopic.csv', 'onclick' => 'saveTopicPMI()')))),
-									array('id' => 'graph-dl', 'data' => l('Doc-topic graph file (for Gephi)','javascript:;',array('attributes' => array('download' => 'gephi.csv', 'onclick' => 'saveGraph()')))),
-									array('id' => 'state-dl', 'data' => l('Complete sampling state','javascript:;',array('attributes' => array('download' => 'state.csv', 'onclick' => 'saveState()')))),
-								),
-							),
-						),
-					),
-				),
-			),
-			'#attached' => array(
-				'js' => array(
-					SHANTI_JSLDA_PATH . '/jslda/d3.v3.min.js' => array('type' => 'file'),
-					SHANTI_JSLDA_PATH . '/jslda/xregexp-all-min.js' => array('type' => 'file'),
-					SHANTI_JSLDA_PATH . '/jslda/queue.min.js' => array('type' => 'file'),
-					SHANTI_JSLDA_PATH . '/js/shanti-jslda-default.js' => array('type' => 'file', 'scope' => 'footer'),
-					array('data' => array('shantiJsLDA' => $js_settings), 'type' => 'setting'),
-				),
-				'css' => array(
-					SHANTI_JSLDA_PATH . '/css/shanti-jslda-default.css' => array(),
-					'http://fonts.googleapis.com/css?family=Alegreya' => array('type' => 'external'),
-				),
-			),
-		),
-	);
-	
-	return drupal_render($build);
+	return theme('shanti_jslda_default_page', array('corpus_url' => $corpus_url, 'stopwords_url' => $stopws_url, 'topicn' => $topicn));
 }
 
-function shanti_jslda_theme(existing, $type, $theme, $path) {
+function shanti_jslda_theme($existing, $type, $theme, $path) {
 	return array(
-		'default_page' => array(
-			'variables' => array($corpus = NULL, $stopwords = NULL, $topicn = 25),
+		'shanti_jslda_default_page' => array(
+			'variables' => array('corpus_url' => '', 'stopwords_url' => '', 'topicn' => 25),
 			'template' => 'shanti-jslda-default-page',
+			'path' => SHANTI_JSLDA_PATH,
 		),
 	);
 }
 
-function shanti_jslda_default_page($vars) {
-	// Return rendered build
+function shanti_jslda_views_api() {
+  return array(
+    'api' => 3,
+    'path' =>  SHANTI_JSLDA_PATH . '/views',
+  );
 }
