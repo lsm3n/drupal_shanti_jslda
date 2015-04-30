@@ -3,33 +3,52 @@
 define('SHANTI_JSLDA_PATH', drupal_get_path('module','shanti_jslda'));
 
 function shanti_jslda_menu() {
-	return array(
+  return array(
     'shanti_jslda/default/%/%/%' => array(
-    	'title' => t('Default jsLDA Page'),
+      'title' => t('Default jsLDA Page'),
       'page callback' => 'shanti_jslda_default',
-			'page arguments' => array(2,3,4),
+      'page arguments' => array(2,3,4),
       'type' => MENU_CALLBACK,
       'access arguments' => array('access content'),
-    ),	
-	);
+    ),  
+    'shanti_jslda/node/%' => array(
+      'title' => t('Node jsLDA Page'),
+      'page callback' => 'shanti_jslda_node',
+      'page arguments' => array(2),
+      'type' => MENU_CALLBACK,
+      'access arguments' => array('access content'),
+    ),  
+  );
 }
 
 function shanti_jslda_default($corpus_file_id, $stopwords_file_id, $topicn = 25) {
-	$corpus = file_load($corpus_file_id);
-	$stopws = file_load($stopwords_file_id);
-	$corpus_url = file_create_url($corpus->uri);
-	$stopws_url = file_create_url($stopws->uri);
-	return theme('shanti_jslda_default_page', array('corpus_url' => $corpus_url, 'stopwords_url' => $stopws_url, 'topicn' => $topicn));
+  $corpus = file_load($corpus_file_id);
+  $stopws = file_load($stopwords_file_id);
+  $corpus_url = file_create_url($corpus->uri);
+  $stopws_url = file_create_url($stopws->uri);
+  return theme('shanti_jslda_default_page', array('corpus_url' => $corpus_url, 'stopwords_url' => $stopws_url, 'topicn' => $topicn));
+}
+
+function shanti_jslda_node($nid) {
+	$node = node_load($nid);
+	$corpus_file_id = $node->field_tm_corpus_file[$node->language][0]['fid'];
+	$stopws_file_id = $node->field_tm_stopwords_file[$node->language][0]['fid'];
+  $corpus_file = file_load($corpus_file_id);
+  $stopws_file = file_load($stopws_file_id);
+  $corpus_url = file_create_url($corpus_file->uri);
+  $stopws_url = file_create_url($stopws_file->uri);
+  $topicn = $node->field_tm_topicn[$node->language][0]['value'];
+  return theme('shanti_jslda_default_page', array('corpus_url' => $corpus_url, 'stopwords_url' => $stopws_url, 'topicn' => $topicn));
 }
 
 function shanti_jslda_theme($existing, $type, $theme, $path) {
-	return array(
-		'shanti_jslda_default_page' => array(
-			'variables' => array('corpus_url' => '', 'stopwords_url' => '', 'topicn' => 25),
-			'template' => 'shanti-jslda-default-page',
-			'path' => SHANTI_JSLDA_PATH,
-		),
-	);
+  return array(
+    'shanti_jslda_default_page' => array(
+      'variables' => array('corpus_url' => NULL, 'stopwords_url' => NULL, 'topicn' => 20),
+      'template' => 'shanti-jslda-default-page',
+      'path' => SHANTI_JSLDA_PATH,
+    ),
+  );
 }
 
 function shanti_jslda_views_api() {
@@ -37,4 +56,10 @@ function shanti_jslda_views_api() {
     'api' => 3,
     'path' =>  SHANTI_JSLDA_PATH . '/views',
   );
+}
+
+function shanti_jslda_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/' . $plugin_type;
+  }
 }

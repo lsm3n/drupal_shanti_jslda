@@ -1,0 +1,17 @@
+TO DO
+* Create Data file type programmatically
+* Add Number of Topics field to content type
+* Add Label field to content type
+* Create topic model content type programmatically 
+* Create your own Download files (e.g. SHIVA)
+* Install module on dedicated site
+* Create Feeds importer for topic models	
+* Create a new menu and function to read data from saved views, and use views field in content type
+
+DEPENDENCIES
+* media (2.x) <-- NOT AWESONE, but may be needed or useful
+* Created new file type called "Data" (may not be required)
+* computed_field
+* views_data_export
+* filefield_sources -- AWESOME
+* IMCE

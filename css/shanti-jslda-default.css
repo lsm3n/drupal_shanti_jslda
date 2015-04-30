@@ -28,4 +28,9 @@ table td { text-align: right; padding: 9px 8px 0px 8px; }
 #tabwrapper .page .help {
 	font-weight:bold;
 	font-size:110%;	
-}	
+}
+
+.shanti-jslda-title {
+	font-weight:bold;
+	margin: 0 auto;
+}
