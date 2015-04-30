@@ -4,9 +4,9 @@ Drupal.behaviors.shanti_jslda_default = {
 
   attach: function (context, settings) {
       
-    documentsURL  = settings.shanti_jslda.corpus_url;
-    stopwordsURL  = settings.shanti_jslda.stopwords_url;
-    numTopics     = settings.shanti_jslda.topicn;
+    var documentsURL  = settings.shanti_jslda.corpus_url;
+    var stopwordsURL  = settings.shanti_jslda.stopwords_url;
+    var numTopics     = settings.shanti_jslda.topicn;
     
     if (isNaN(numTopics)) {
       alert("The requested number of topics [" + numTopics + "] couldn't be interpreted as a number");
@@ -326,6 +326,7 @@ Drupal.behaviors.shanti_jslda_default = {
       }
       reorderDocuments();
     };
+    
     var mostFrequentWords = function() {
       // Convert the random-access map to a list of word:count pairs that
       //  we can then sort.
@@ -336,11 +337,13 @@ Drupal.behaviors.shanti_jslda_default = {
       wordCounts.sort(byCountDescending);
       return wordCounts;
     };
+    
     var entropy = function(counts) {
       counts = counts.filter(function (x) { return x > 0.0; });
       var sum = d3.sum(counts);
       return Math.log(sum) - (1.0 / sum) * d3.sum(counts, function (x) { return x * Math.log(x); });
     }
+    
     var vocabTable = function() {
       var format = d3.format(".2g");
       var wordFrequencies = mostFrequentWords().slice(0, 499);
@@ -348,11 +351,20 @@ Drupal.behaviors.shanti_jslda_default = {
          .data(wordFrequencies)
          .enter().append("tr");
       var cells = rows.selectAll("td")
-         .data(function(row) { return [ { column: "word", value: row.word, class: "" }, { column: "count", value: row.count, class: "unselectable" }, { column: "entropy", value: format(1.0 - (entropy(d3.values(wordTopicCounts[row.word])) / Math.log(numTopics))), class: "unselectable" } ]; })
+         .data(function(row) { return [ { column: "word", value: row.word, class: "vocab-word" }, { column: "count", value: row.count, class: "unselectable" }, { column: "entropy", value: format(1.0 - (entropy(d3.values(wordTopicCounts[row.word])) / Math.log(numTopics))), class: "unselectable" } ]; })
          .enter().append("td")
          .attr("class", function (d) { return d.class; })
+         .append('p')
          .text(function (d) { return d.value; });
     };
+    
+    /*
+		$('.vocab-word button').on('click',function() {
+    	var this_word = $(this).value();
+    	alert(this_word);
+    });
+    */
+
     var updateVocabTable = function() {
       var format = d3.format(".2g");
       var rows = d3.select("#vocab-table tbody").selectAll("tr");
@@ -361,37 +373,21 @@ Drupal.behaviors.shanti_jslda_default = {
         .text(function (d) { return d.value; });
     }
     
-    /* Declare functions for various tabs and buttons */
+    /* Functions for tabs and buttons */
     
-    d3.select("#docs-tab").on("click", function() {
-      d3.selectAll(".page").style("display", "none");
-      d3.selectAll("ul li").attr("class", "");
-      d3.select("#docs-page").style("display", "block");
-      d3.select("#docs-tab").attr("class", "selected");
+    $('.page-tab').on('click', function() {
+    	var tab_id = $(this).attr('id');
+    	var page_id = tab_id.replace('-tab','-page');
+    	$('.page').hide();
+    	$('.page-tab').removeClass('selected');
+    	$('#' + page_id).show();
+    	$('#' + tab_id).addClass('selected');
     });
-    d3.select("#vocab-tab").on("click", function() {
-      d3.selectAll(".page").style("display", "none");
-      d3.selectAll("ul li").attr("class", "");
-      d3.select("#vocab-page").style("display", "block");
-      d3.select("#vocab-tab").attr("class", "selected");
-    });
-    d3.select("#corr-tab").on("click", function() {
-      d3.selectAll(".page").style("display", "none");
-      d3.selectAll("ul li").attr("class", "");
-      d3.select("#corr-page").style("display", "block");
-      d3.select("#corr-tab").attr("class", "selected");
-    });
-    d3.select("#dl-tab").on("click", function() {
-      d3.selectAll(".page").style("display", "none");
-      d3.selectAll("ul li").attr("class", "");
-      d3.select("#dl-page").style("display", "block");
-      d3.select("#dl-tab").attr("class", "selected");
-    });
+        
     d3.select("#sweep").on("click", function() {
       requestedSweeps += 50;
       d3.timer(sweep);
     });
-    
 
     /* Handlers for download links */
     
@@ -461,6 +457,7 @@ Drupal.behaviors.shanti_jslda_default = {
       .defer(d3.text, stopwordsURL)
       .defer(d3.text, documentsURL)
       .await(ready);
+      
     function ready(error, stops, lines) {
       if (error) { 
         alert("One of these URLs didn't work:\n " + stopwordsURL + "\n " + documentsURL); 
@@ -477,7 +474,7 @@ Drupal.behaviors.shanti_jslda_default = {
         vocabTable();
       }
     }
-
+    
   },
 
   detach: function () {

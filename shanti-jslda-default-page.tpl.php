@@ -39,26 +39,30 @@ drupal_add_js(array('shanti_jslda' => $js_settings), 'setting');
   <div id="tabwrapper">
     <div class="tabs">
       <ul>
-        <li id="docs-tab" class="selected">Topic Documents</li>
-        <li id="corr-tab">Topic Correlations</li>
-        <li id="dl-tab">Downloads</li>
-        <li id="vocab-tab">Vocabulary</li>
+        <li id="docs-tab" class="selected page-tab">Topic Documents</li>
+        <li id="corr-tab" class="page-tab">Topic Correlations</li>
+        <li id="dl-tab" class="page-tab">Downloads</li>
+        <li id="vocab-tab" class="page-tab">Vocabulary</li>
       </ul>
     </div>
     <div id="pages">
+    
       <div id="docs-page" class="page">
         <div class="help">Documents are sorted by their proportion of the currently selected topic, biased to prefer longer documents.</div>
       </div>
-      <div id="vocab-page" class="page">
+    
+    	<div id="vocab-page" class="page">
         <div class="help">Words occurring in only one topic have specificity 1.0, words evenly distributed among all topics have specificity 0.0.</div>
         <table id="vocab-table">
           <thead><th>Word</th><th>Frequency</th><th>Topic Specificity</th></thead>
           <tbody></tbody>
         </table>
       </div>
+      
       <div id="corr-page" class="page">
         <div class="help">Topics that occur together more than expected are blue, topics that occur together less than expected are red.</div>
       </div>
+      
       <div id="dl-page" class="page">
         <div class="help">Each file is in comma-separated format.</div>
         <ul>
@@ -70,6 +74,7 @@ drupal_add_js(array('shanti_jslda' => $js_settings), 'setting');
           <li><a id="state-dl" href="javascript:;" download="state.csv" onclick="saveState()">Complete sampling state</a></li>
         </ul>
       </div>
+      
     </div>  
   </div>
 </div>
