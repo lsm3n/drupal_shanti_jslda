@@ -1,7 +1,7 @@
 <?php
 
 // Overwrite # topics if given in query
-if (isset($_GET['topics']) && is_int($_GET['topics'])) {
+if (isset($_GET['topics']) && is_numeric($_GET['topics'])) {
 	$topicn = $_GET['topics'];
 }
 
