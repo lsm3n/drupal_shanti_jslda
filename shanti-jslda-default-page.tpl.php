@@ -39,10 +39,10 @@ drupal_add_js(array('shanti_jslda' => $js_settings), 'setting');
   <div id="tabwrapper">
     <div class="tabs">
       <ul>
-        <li id="docs-tab" class="selected page-tab">Topic Documents</li>
-        <li id="corr-tab" class="page-tab">Topic Correlations</li>
-        <li id="dl-tab" class="page-tab">Downloads</li>
-        <li id="vocab-tab" class="page-tab">Vocabulary</li>
+        <li id="docs-tab" 	class="selected page-tab">Topic Documents</li>
+        <li id="corr-tab" 	class="page-tab">Topic Correlations</li>
+        <li id="dl-tab" 		class="page-tab">Downloads</li>
+        <li id="vocab-tab" 	class="page-tab">Vocabulary</li>
       </ul>
     </div>
     <div id="pages">
@@ -66,12 +66,12 @@ drupal_add_js(array('shanti_jslda' => $js_settings), 'setting');
       <div id="dl-page" class="page">
         <div class="help">Each file is in comma-separated format.</div>
         <ul>
-          <li><a id="doctopics-dl" href="javascript:;" download="doctopics.csv">Document topics</a></li>
-          <li><a id="topicwords-dl" href="javascript:;" download="topicwords.csv" onclick="saveTopicWords()">Topic words</a></li>
-          <li><a id="keys-dl" href="javascript:;" download="keys.csv" onclick="saveTopicKeys()">Topic summaries</a></li>
-          <li><a id="topictopic-dl" href="javascript:;" download="topictopic.csv" onclick="saveTopicPMI()">Topic-topic connections</a></li>
-          <li><a id="graph-dl" href="javascript:;" download="gephi.csv" onclick="saveGraph()">Doc-topic graph file (for Gephi)</a></li>
-          <li><a id="state-dl" href="javascript:;" download="state.csv" onclick="saveState()">Complete sampling state</a></li>
+          <li><a id="doctopics-dl" 		href="javascript:;" download="doctopics.csv">Document topics</a></li>
+          <li><a id="topicwords-dl" 	href="javascript:;" download="topicwords.csv">Topic words</a></li>
+          <li><a id="keys-dl" 				href="javascript:;" download="keys.csv">Topic summaries</a></li>
+          <li><a id="topictopic-dl" 	href="javascript:;" download="topictopic.csv">Topic-topic connections</a></li>
+          <li><a id="graph-dl" 				href="javascript:;" download="gephi.csv">Doc-topic graph file (for Gephi)</a></li>
+          <li><a id="state-dl" 				href="javascript:;" download="state.csv">Complete sampling state</a></li>
         </ul>
       </div>
       
